@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+h1 {
+    text-align: center;
+}
+    </style>
+    <head>
+        <title>Sudoku Solver</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        <script>
+var solved;
+var init_table = [];
+var table = [];
+init_table.push(1); init_table.push(5); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(2); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(2); init_table.push(7); init_table.push(4); init_table.push(5); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(1); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(7); init_table.push(4); init_table.push(0); init_table.push(2); init_table.push(0); init_table.push(1); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(5); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(3); init_table.push(1); init_table.push(9); init_table.push(0); init_table.push(0); init_table.push(2); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(5); init_table.push(9); init_table.push(0); init_table.push(0); init_table.push(9); init_table.push(8); init_table.push(5); init_table.push(0); init_table.push(3); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(2); init_table.push(1); init_table.push(9); init_table.push(8); init_table.push(3); init_table.push(0);
+
+function reset() {
+    solved = false;
+    table = [];
+    for (let i = 0; i < init_table.length; i++) {
+        table[i] = 0;
+    }
+}
+
+function init_1() {
+    solved = false;
+    table = [];
+    for (let i = 0; i < init_table.length; i++) {
+        table[i] = init_table[i];
+    }
+}
+
+function getValuesFromGui() {
+    for (let i = 0; i < 81; i++) {
+        let x = Math.floor(i / 9) + 1;
+        let y = i % 9 + 1;
+        let id = x + "" + y;
+        let value = parseInt(document.getElementById(id).value);
+        if (!isNaN(value)) {
+            table[i] = value;
+        } else {
+            table[i] = 0;
+        }
+    }
+}
+
+function print() {
+    for (let i = 0; i < 81; i++) {
+        let x = Math.floor(i / 9) + 1;
+        let y = i % 9 + 1;
+        let id = x + "" + y;
+        if (table[i] > 0 && table[i] < 10) {
+            document.getElementById(id).value = table[i];
+        } else {
+            document.getElementById(id).value = "";
+        }
+    }
+}
+
+function main() {
+    init_1();
+    print();
+}
+
+function reset_button() {
+    reset();
+    print();
+}
+
+function checkInitialPosition() {
+    for (let i = 0; i < 81; i++) {
+        if (table[i] > 0) {
+            let correct = isCorrect(i);
+            if (!correct) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function solve() {
+    solved = false;
+    console.log("solving...");
+    getValuesFromGui();
+    let isValid = checkInitialPosition();
+    if (isValid) {
+        foo(0);
+        print();
+        if (solved) {
+            console.log("solved");
+        } else {
+            alert("Invalid position, unable to solve!");
+        }
+    } else {
+        alert("Invalid position, unable to solve!");
+    }
+}
+
+function isCorrect(idx) {
+    let x = idx % 9;
+    let y = Math.floor(idx / 9);
+    //console.log("x: %d, y: %d, table[%d]: %d", x, y, idx, table[idx]);
+    for (let i = 0; i < 9; i++) {
+        let idx1 = 9 * y + i;
+        //console.log("i: %d, x: %d, y: %d, table[%d]: %d", i, x, y, idx1, table[idx1]);
+        if (idx != idx1 && table[idx] == table[idx1]) {
+            return false;
+        }
+        let idx2 = 9 * i + x;
+        //console.log("idx2: " + idx2);
+        if (idx != idx2 && table[idx] == table[idx2]) {
+            return false;
+        }
+    }
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            let idx1 = 9 * (3 * Math.floor(y / 3) + i) + 3 * Math.floor(x / 3) + j;
+            //console.log("i: " + idx + ", idx: " + idx1);
+            if (idx != idx1 && table[idx] == table[idx1]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function foo(i) {
+    if (solved) {
+        return;
+    }
+    while (i < 81) {
+        if (table[i] != 0) {
+            i++;
+            continue;
+        }
+        for (let n = 1; n <= 9; n++) {
+            table[i] = n;
+            //print();
+            if (isCorrect(i)) {
+                //console.log(i + " " + n);
+                foo(i + 1);
+                if (solved) {
+                    return;
+                }
+            }
+        }
+        table[i] = 0;
+        return;
+    }
+    solved = true;
+}
+        </script>
+    </head>
+    <body onload="main()">
+        <div data-role="page">
+            <h1>Sudoku Solver</h1>
+            <form action="javascript:solve();" method="get">
+                <div data-role="main" class="ui-content" id="main">
+                    <table id="table">
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="11"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="12"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="13"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="14"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="15"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="16"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="17"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="18"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="19"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="21"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="22"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="23"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="24"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="25"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="26"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="27"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="28"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="29"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="31"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="32"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="33"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="34"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="35"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="36"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="37"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="38"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="39"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="41"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="42"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="43"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="44"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="45"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="46"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="47"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="48"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="49"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="51"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="52"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="53"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="54"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="55"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="56"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="57"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="58"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="59"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="61"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="62"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="63"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="64"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="65"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="66"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="67"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="68"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="69"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="71"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="72"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="73"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="74"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="75"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="76"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="77"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="78"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="79"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="81"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="82"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="83"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="84"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="85"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="86"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="87"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="88"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="89"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="91"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="92"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="93"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="94"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="95"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="96"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="97"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="98"></td>
+                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="99"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="9"><input type="submit" value="Solve"></input></td>
+                        </tr>
+                        <tr>
+                            <td colspan="9"><input id="init_1" type="button" value="Init 1" onclick="main();"/input></td>
+                        </tr>
+                        <tr>
+                            <td colspan="9"><input id="reset" type="button" value="Reset" onclick="reset_button();"/input></td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>
