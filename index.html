@@ -1,9 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
     <style>
-h1 {
-    text-align: center;
-}
+        h1 {
+            text-align: center;
+        }
+
+        td.top_left {
+            border-style: solid;
+            border-width: medium 0px 0px medium;
+        }
+        td.top_right {
+            border-style: solid;
+            border-width: medium medium 0px 0px;
+        }
+        td.bottom_left {
+            border-style: solid;
+            border-width: 0px 0px medium medium;
+        }
+        td.bottom_right {
+            border-style: solid;
+            border-width: 0px medium medium 0px;
+        }
+        td.top {
+            border-style: solid;
+            border-width: medium 0px 0px 0px;
+        }
+        td.right {
+            border-style: solid;
+            border-width: 0px medium 0px 0px;
+        }
+        td.bottom {
+            border-style: solid;
+            border-width: 0px 0px medium 0px;
+        }
+        td.left {
+            border-style: solid;
+            border-width: 0px 0px 0px medium;
+        }
     </style>
     <head>
         <title>Sudoku Solver</title>
@@ -162,103 +195,103 @@ function foo(i) {
                 <div data-role="main" class="ui-content" id="main">
                     <table id="table">
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="11"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="12"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="13"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="14"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="15"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="16"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="17"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="18"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="19"></td>
+                            <td class="top_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="11"></td>
+                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="12"></td>
+                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="13"></td>
+                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="14"></td>
+                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="15"></td>
+                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="16"></td>
+                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="17"></td>
+                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="18"></td>
+                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="19"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="21"></td>
+                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="21"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="22"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="23"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="23"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="24"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="25"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="26"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="26"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="27"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="28"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="29"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="29"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="31"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="32"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="33"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="34"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="35"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="36"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="37"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="38"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="39"></td>
+                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="31"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="32"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="33"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="34"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="35"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="36"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="37"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="38"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="39"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="41"></td>
+                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="41"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="42"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="43"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="43"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="44"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="45"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="46"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="46"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="47"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="48"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="49"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="49"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="51"></td>
+                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="51"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="52"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="53"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="53"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="54"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="55"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="56"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="56"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="57"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="58"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="59"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="59"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="61"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="62"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="63"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="64"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="65"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="66"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="67"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="68"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="69"></td>
+                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="61"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="62"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="63"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="64"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="65"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="66"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="67"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="68"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="69"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="71"></td>
+                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="71"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="72"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="73"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="73"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="74"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="75"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="76"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="76"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="77"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="78"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="79"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="79"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="81"></td>
+                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="81"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="82"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="83"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="83"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="84"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="85"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="86"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="86"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="87"></td>
                             <td><input type="text" maxlength=1 size=1 min=0 max=9 id="88"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="89"></td>
+                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="89"></td>
                         </tr>
                         <tr>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="91"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="92"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="93"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="94"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="95"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="96"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="97"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="98"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="99"></td>
+                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="91"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="92"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="93"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="94"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="95"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="96"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="97"></td>
+                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="98"></td>
+                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="99"></td>
                         </tr>
                         <tr>
                             <td colspan="9"><input type="submit" value="Solve"></input></td>
