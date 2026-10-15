@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-    <style>
+    <head>
+        <title>Sudoku Solver</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
         h1 {
+            text-align: center;
+        }
+
+        table#table {
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        table#table td[colspan] {
             text-align: center;
         }
 
@@ -38,17 +50,20 @@
             border-width: 0px 0px 0px medium;
         }
     </style>
-    <head>
-        <title>Sudoku Solver</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
         <script>
 var solved;
-var init_table = [];
+var init_table = [
+    1, 5, 0,  0, 4, 2,  0, 0, 6,
+    2, 7, 4,  5, 6, 0,  0, 1, 0,
+    0, 0, 6,  0, 0, 7,  4, 0, 2,
+    0, 1, 0,  0, 0, 0,  0, 4, 0,
+    0, 0, 0,  0, 5, 0,  0, 0, 0,
+    0, 6, 0,  4, 0, 3,  1, 9, 0,
+    0, 2, 0,  6, 0, 5,  9, 0, 0,
+    9, 8, 5,  0, 3, 0,  0, 6, 0,
+    0, 4, 0,  2, 1, 9,  8, 3, 0
+];
 var table = [];
-init_table.push(1); init_table.push(5); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(2); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(2); init_table.push(7); init_table.push(4); init_table.push(5); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(1); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(7); init_table.push(4); init_table.push(0); init_table.push(2); init_table.push(0); init_table.push(1); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(5); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(3); init_table.push(1); init_table.push(9); init_table.push(0); init_table.push(0); init_table.push(2); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(5); init_table.push(9); init_table.push(0); init_table.push(0); init_table.push(9); init_table.push(8); init_table.push(5); init_table.push(0); init_table.push(3); init_table.push(0); init_table.push(0); init_table.push(6); init_table.push(0); init_table.push(0); init_table.push(4); init_table.push(0); init_table.push(2); init_table.push(1); init_table.push(9); init_table.push(8); init_table.push(3); init_table.push(0);
 
 function reset() {
     solved = false;
@@ -72,7 +87,7 @@ function getValuesFromGui() {
         let y = i % 9 + 1;
         let id = x + "" + y;
         let value = parseInt(document.getElementById(id).value);
-        if (!isNaN(value)) {
+        if (!isNaN(value) && value >= 1 && value <= 9) {
             table[i] = value;
         } else {
             table[i] = 0;
@@ -80,7 +95,7 @@ function getValuesFromGui() {
     }
 }
 
-function print() {
+function render() {
     for (let i = 0; i < 81; i++) {
         let x = Math.floor(i / 9) + 1;
         let y = i % 9 + 1;
@@ -93,14 +108,46 @@ function print() {
     }
 }
 
+function cellClass(r, c) {
+    let v = (r === 0) ? "top" : (r % 3 === 2) ? "bottom" : "";
+    let h = (c === 0) ? "left" : (c % 3 === 2) ? "right" : "";
+    if (v && h) {
+        return v + "_" + h;
+    }
+    return v || h || "";
+}
+
+function sanitizeCell(input) {
+    // Keep only a single digit 1-9; strip anything else (0, letters, symbols).
+    let v = input.value.replace(/[^1-9]/g, "");
+    input.value = v.length > 0 ? v[0] : "";
+}
+
+function buildGrid() {
+    let grid = document.getElementById("grid");
+    let html = "";
+    for (let r = 0; r < 9; r++) {
+        html += "<tr>";
+        for (let c = 0; c < 9; c++) {
+            let id = (r + 1) + "" + (c + 1);
+            let cls = cellClass(r, c);
+            let classAttr = cls ? ' class="' + cls + '"' : "";
+            html += "<td" + classAttr + '><input type="text" inputmode="numeric" pattern="[1-9]" maxlength="1" size="1" oninput="sanitizeCell(this)" id="' + id + '"></td>';
+        }
+        html += "</tr>";
+    }
+    grid.innerHTML = html;
+}
+
 function main() {
+    buildGrid();
     init_1();
-    print();
+    render();
 }
 
 function reset_button() {
     reset();
-    print();
+    render();
 }
 
 function checkInitialPosition() {
@@ -121,8 +168,8 @@ function solve() {
     getValuesFromGui();
     let isValid = checkInitialPosition();
     if (isValid) {
-        foo(0);
-        print();
+        solveFrom(0);
+        render();
         if (solved) {
             console.log("solved");
         } else {
@@ -136,23 +183,21 @@ function solve() {
 function isCorrect(idx) {
     let x = idx % 9;
     let y = Math.floor(idx / 9);
-    //console.log("x: %d, y: %d, table[%d]: %d", x, y, idx, table[idx]);
     for (let i = 0; i < 9; i++) {
         let idx1 = 9 * y + i;
-        //console.log("i: %d, x: %d, y: %d, table[%d]: %d", i, x, y, idx1, table[idx1]);
         if (idx != idx1 && table[idx] == table[idx1]) {
             return false;
         }
         let idx2 = 9 * i + x;
-        //console.log("idx2: " + idx2);
         if (idx != idx2 && table[idx] == table[idx2]) {
             return false;
         }
     }
+    let boxRow = 3 * Math.floor(y / 3);
+    let boxCol = 3 * Math.floor(x / 3);
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-            let idx1 = 9 * (3 * Math.floor(y / 3) + i) + 3 * Math.floor(x / 3) + j;
-            //console.log("i: " + idx + ", idx: " + idx1);
+            let idx1 = 9 * (boxRow + i) + boxCol + j;
             if (idx != idx1 && table[idx] == table[idx1]) {
                 return false;
             }
@@ -161,146 +206,43 @@ function isCorrect(idx) {
     return true;
 }
 
-function foo(i) {
-    if (solved) {
+function solveFrom(i) {
+    if (i >= 81) {
+        solved = true;
         return;
     }
-    while (i < 81) {
-        if (table[i] != 0) {
-            i++;
-            continue;
-        }
-        for (let n = 1; n <= 9; n++) {
-            table[i] = n;
-            //print();
-            if (isCorrect(i)) {
-                //console.log(i + " " + n);
-                foo(i + 1);
-                if (solved) {
-                    return;
-                }
+    if (table[i] != 0) {
+        solveFrom(i + 1);
+        return;
+    }
+    for (let n = 1; n <= 9; n++) {
+        table[i] = n;
+        if (isCorrect(i)) {
+            solveFrom(i + 1);
+            if (solved) {
+                return;
             }
         }
-        table[i] = 0;
-        return;
     }
-    solved = true;
+    table[i] = 0;
 }
         </script>
     </head>
     <body onload="main()">
-        <div data-role="page">
+        <div>
             <h1>Sudoku Solver</h1>
             <form action="javascript:solve();" method="get">
-                <div data-role="main" class="ui-content" id="main">
+                <div id="main">
                     <table id="table">
+                        <tbody id="grid"></tbody>
                         <tr>
-                            <td class="top_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="11"></td>
-                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="12"></td>
-                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="13"></td>
-                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="14"></td>
-                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="15"></td>
-                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="16"></td>
-                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="17"></td>
-                            <td class="top"><input type="text" maxlength=1 size=1 min=0 max=9 id="18"></td>
-                            <td class="top_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="19"></td>
+                            <td colspan="9"><input type="submit" value="Solve"></td>
                         </tr>
                         <tr>
-                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="21"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="22"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="23"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="24"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="25"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="26"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="27"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="28"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="29"></td>
+                            <td colspan="9"><input id="init_1" type="button" value="Init 1" onclick="main();"></td>
                         </tr>
                         <tr>
-                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="31"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="32"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="33"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="34"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="35"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="36"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="37"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="38"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="39"></td>
-                        </tr>
-                        <tr>
-                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="41"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="42"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="43"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="44"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="45"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="46"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="47"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="48"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="49"></td>
-                        </tr>
-                        <tr>
-                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="51"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="52"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="53"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="54"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="55"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="56"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="57"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="58"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="59"></td>
-                        </tr>
-                        <tr>
-                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="61"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="62"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="63"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="64"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="65"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="66"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="67"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="68"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="69"></td>
-                        </tr>
-                        <tr>
-                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="71"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="72"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="73"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="74"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="75"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="76"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="77"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="78"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="79"></td>
-                        </tr>
-                        <tr>
-                            <td class="left"><input type="text" maxlength=1 size=1 min=0 max=9 id="81"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="82"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="83"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="84"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="85"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="86"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="87"></td>
-                            <td><input type="text" maxlength=1 size=1 min=0 max=9 id="88"></td>
-                            <td class="right"><input type="text" maxlength=1 size=1 min=0 max=9 id="89"></td>
-                        </tr>
-                        <tr>
-                            <td class="bottom_left"><input type="text" maxlength=1 size=1 min=0 max=9 id="91"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="92"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="93"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="94"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="95"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="96"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="97"></td>
-                            <td class="bottom"><input type="text" maxlength=1 size=1 min=0 max=9 id="98"></td>
-                            <td class="bottom_right"><input type="text" maxlength=1 size=1 min=0 max=9 id="99"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="9"><input type="submit" value="Solve"></input></td>
-                        </tr>
-                        <tr>
-                            <td colspan="9"><input id="init_1" type="button" value="Init 1" onclick="main();"/input></td>
-                        </tr>
-                        <tr>
-                            <td colspan="9"><input id="reset" type="button" value="Reset" onclick="reset_button();"/input></td>
+                            <td colspan="9"><input id="reset" type="button" value="Reset" onclick="reset_button();"></td>
                         </tr>
                     </table>
                 </div>
