@@ -17,6 +17,35 @@
             text-align: center;
         }
 
+        #tooltip {
+            display: none;
+            position: absolute;
+            z-index: 10;
+            background: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: sans-serif;
+            font-size: 13px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #status {
+            display: none;
+            text-align: center;
+            margin: 8px auto;
+            padding: 8px 12px;
+            max-width: 300px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
         td.top_left {
             border-style: solid;
             border-width: medium 0px 0px medium;
@@ -64,6 +93,54 @@ var init_table = [
     0, 4, 0,  2, 1, 9,  8, 3, 0
 ];
 var table = [];
+// Undo support: history is a stack of { id, prev } moves; cellValues tracks the
+// last-known value of each cell so input handlers can determine what changed.
+var moveHistory = [];
+var cellValues = {};
+
+// Snapshot the current grid values into cellValues and clear the undo history.
+// Called after bulk operations (load / reset / solve) which are not undoable.
+function resetHistory() {
+    moveHistory = [];
+    cellValues = {};
+    for (let r = 1; r <= 9; r++) {
+        for (let c = 1; c <= 9; c++) {
+            let id = r + "" + c;
+            let el = document.getElementById(id);
+            cellValues[id] = el ? el.value : "";
+        }
+    }
+    updateUndoButton();
+}
+
+// Record a single cell change for undo.
+function recordMove(id, prevValue) {
+    moveHistory.push({ id: id, prev: prevValue });
+    updateUndoButton();
+}
+
+function updateUndoButton() {
+    let btn = document.getElementById("undo");
+    if (btn) {
+        btn.disabled = moveHistory.length === 0;
+    }
+}
+
+// Revert the most recent recorded move.
+function undo() {
+    if (moveHistory.length === 0) {
+        return;
+    }
+    let move = moveHistory.pop();
+    let input = document.getElementById(move.id);
+    input.value = move.prev;
+    cellValues[move.id] = move.prev;
+    hideCandidates();
+    updateHints();
+    markConflict(input);
+    checkSolved();
+    updateUndoButton();
+}
 
 function reset() {
     solved = false;
@@ -106,6 +183,8 @@ function render() {
             document.getElementById(id).value = "";
         }
     }
+    updateHints();
+    checkSolved();
 }
 
 function cellClass(r, c) {
@@ -123,6 +202,165 @@ function sanitizeCell(input) {
     input.value = v.length > 0 ? v[0] : "";
 }
 
+// Handles a manual cell edit: sanitize, record the change for undo, then refresh
+// hints / conflict marking / solved status.
+function handleInput(input) {
+    sanitizeCell(input);
+    let id = input.id;
+    let prev = (id in cellValues) ? cellValues[id] : "";
+    if (input.value !== prev) {
+        recordMove(id, prev);
+        cellValues[id] = input.value;
+    }
+    updateHints();
+    markConflict(input);
+    checkSolved();
+}
+
+// Returns the list of values 1-9 that can legally be placed at board index i,
+// given the current contents of `table` (row, column and 3x3 box constraints).
+function candidates(i) {
+    let x = i % 9;
+    let y = Math.floor(i / 9);
+    let used = {};
+    for (let k = 0; k < 9; k++) {
+        used[table[9 * y + k]] = true;   // row
+        used[table[9 * k + x]] = true;   // column
+    }
+    let boxRow = 3 * Math.floor(y / 3);
+    let boxCol = 3 * Math.floor(x / 3);
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+            used[table[9 * (boxRow + r) + boxCol + c]] = true;
+        }
+    }
+    let result = [];
+    for (let n = 1; n <= 9; n++) {
+        if (!used[n]) {
+            result.push(n);
+        }
+    }
+    return result;
+}
+
+// Hover handlers: show legal candidate values for an empty cell in a custom,
+// instant popup positioned next to the hovered cell.
+function showCandidates(input) {
+    let x = parseInt(input.id[0]) - 1;   // row  (id is "<row+1><col+1>")
+    let y = parseInt(input.id[1]) - 1;   // column
+    let i = x * 9 + y;
+    getValuesFromGui();                  // reflect whatever the user has typed
+
+    let tip = document.getElementById("tooltip");
+    if (table[i] !== 0) {
+        tip.style.display = "none";      // filled cell: nothing to suggest
+        return;
+    }
+
+    let options = candidates(i);
+    tip.textContent = options.length > 0
+        ? "Possible: " + options.join(" ")
+        : "No possible value";
+
+    // Position just to the right of the cell, accounting for page scroll.
+    let rect = input.getBoundingClientRect();
+    let scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    let scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    tip.style.left = (rect.right + scrollX + 6) + "px";
+    tip.style.top = (rect.top + scrollY) + "px";
+    tip.style.display = "block";
+}
+
+function hideCandidates() {
+    document.getElementById("tooltip").style.display = "none";
+}
+
+// When the Hint checkbox is on, highlight empty cells that have exactly one
+// legal candidate value with a light-yellow background. Otherwise clear all
+// highlights.
+function updateHints() {
+    let on = document.getElementById("hint").checked;
+    getValuesFromGui();
+    for (let i = 0; i < 81; i++) {
+        let x = Math.floor(i / 9) + 1;
+        let y = i % 9 + 1;
+        let cell = document.getElementById(x + "" + y);
+        if (on && table[i] === 0 && candidates(i).length === 1) {
+            cell.style.backgroundColor = "lightyellow";
+        } else {
+            cell.style.backgroundColor = "";
+        }
+    }
+}
+
+// Marks the given cell's background red if its value conflicts with another
+// cell in the same row, column, or 3x3 box. Clears the red otherwise.
+// Call this AFTER updateHints() so the conflict marking takes precedence.
+function markConflict(input) {
+    let x = parseInt(input.id[0]) - 1;   // row  (id is "<row+1><col+1>")
+    let y = parseInt(input.id[1]) - 1;   // column
+    let i = x * 9 + y;
+    getValuesFromGui();
+    if (table[i] !== 0 && !isCorrect(i)) {
+        input.style.backgroundColor = "lightcoral";
+    } else {
+        input.style.backgroundColor = "";
+    }
+}
+
+// When Hint is on, clicking an empty cell that has exactly one legal candidate
+// fills it in with that value automatically.
+function fillIfSingle(input) {
+    if (!document.getElementById("hint").checked) {
+        return;
+    }
+    let x = parseInt(input.id[0]) - 1;   // row  (id is "<row+1><col+1>")
+    let y = parseInt(input.id[1]) - 1;   // column
+    let i = x * 9 + y;
+    getValuesFromGui();
+    if (table[i] !== 0) {
+        return;                          // already filled
+    }
+    let options = candidates(i);
+    if (options.length === 1) {
+        let prev = (input.id in cellValues) ? cellValues[input.id] : "";
+        input.value = options[0];
+        recordMove(input.id, prev);
+        cellValues[input.id] = input.value;
+        hideCandidates();                // dismiss any open tooltip
+        updateHints();                   // refresh highlights (may reveal new singles)
+        checkSolved();                   // announce if the board is now complete
+    }
+}
+
+// True when all 81 cells are filled (1-9) and the board has no conflicts.
+function isComplete() {
+    for (let i = 0; i < 81; i++) {
+        if (table[i] < 1 || table[i] > 9) {
+            return false;
+        }
+    }
+    for (let i = 0; i < 81; i++) {
+        if (!isCorrect(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Shows a success banner when the puzzle is fully and correctly solved,
+// otherwise hides it. Reads the current GUI values first.
+function checkSolved() {
+    getValuesFromGui();
+    let status = document.getElementById("status");
+    if (isComplete()) {
+        status.textContent = "\u{1F389} Solved! Well done!";
+        status.style.display = "block";
+    } else {
+        status.style.display = "none";
+    }
+}
+
 function buildGrid() {
     let grid = document.getElementById("grid");
     let html = "";
@@ -132,7 +370,7 @@ function buildGrid() {
             let id = (r + 1) + "" + (c + 1);
             let cls = cellClass(r, c);
             let classAttr = cls ? ' class="' + cls + '"' : "";
-            html += "<td" + classAttr + '><input type="text" inputmode="numeric" pattern="[1-9]" maxlength="1" size="1" oninput="sanitizeCell(this)" id="' + id + '"></td>';
+            html += "<td" + classAttr + '><input type="text" inputmode="numeric" pattern="[1-9]" maxlength="1" size="1" oninput="handleInput(this)" onclick="fillIfSingle(this)" onmouseenter="showCandidates(this)" onmouseleave="hideCandidates()" id="' + id + '"></td>';
         }
         html += "</tr>";
     }
@@ -143,11 +381,13 @@ function main() {
     buildGrid();
     init_1();
     render();
+    resetHistory();
 }
 
 function reset_button() {
     reset();
     render();
+    resetHistory();
 }
 
 function checkInitialPosition() {
@@ -172,6 +412,7 @@ function solve() {
         render();
         if (solved) {
             console.log("solved");
+            resetHistory();
         } else {
             alert("Invalid position, unable to solve!");
         }
@@ -229,20 +470,30 @@ function solveFrom(i) {
         </script>
     </head>
     <body onload="main()">
+        <div id="tooltip"></div>
         <div>
             <h1>Sudoku Solver</h1>
+            <div id="status"></div>
             <form action="javascript:solve();" method="get">
                 <div id="main">
                     <table id="table">
                         <tbody id="grid"></tbody>
                         <tr>
+                            <td colspan="9">
+                                <label><input id="hint" type="checkbox" onchange="updateHints();"> Hint</label>
+                            </td>
+                        </tr>
+                        <tr>
                             <td colspan="9"><input type="submit" value="Solve"></td>
                         </tr>
                         <tr>
-                            <td colspan="9"><input id="init_1" type="button" value="Init 1" onclick="main();"></td>
+                            <td colspan="9"><input id="init_1" type="button" value="Init 1" onclick="window.main();"></td>
                         </tr>
                         <tr>
                             <td colspan="9"><input id="reset" type="button" value="Reset" onclick="reset_button();"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="9"><input id="undo" type="button" value="Undo" onclick="window.undo();" disabled></td>
                         </tr>
                     </table>
                 </div>
